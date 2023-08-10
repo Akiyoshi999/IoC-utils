@@ -13,29 +13,10 @@ resource "aws_vpc" "vpc" {
 }
 
 # Subnets
-# locals {
-#   subnets = {
-#     public = {
-#       "1a" = {
-#         cidr   = "192.168.1.0/24"
-#         az     = "ap-northeast-1a"
-#         public = true
-#       },
-#       "1c" = {
-#         cidr   = "192.168.2.0/24"
-#         az     = "ap-northeast-1c"
-#         public = true
-#       },
-#     }
-#     private = {
-#       name = "public"
-#       cidr = "192.168.1.0/24"
-#       az   = "ap-northeast-1a"
-#     }
-#   }
-# }
-resource "aws_subnet" "public_subnet" {
-  for_each                = local.subnets.public
+
+resource "aws_subnet" "public_subnets" {
+  for_each = local.subnets.public
+
   vpc_id                  = aws_vpc.vpc.id
   availability_zone       = each.value.az
   cidr_block              = each.value.cidr
@@ -48,7 +29,7 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
-resource "aws_subnet" "private_subnet" {
+resource "aws_subnet" "private_subnets" {
   for_each                = local.subnets.private
   vpc_id                  = aws_vpc.vpc.id
   availability_zone       = each.value.az
@@ -81,4 +62,15 @@ resource "aws_route_table" "private_rt" {
     Env     = var.environment
     Type    = var.private
   }
+}
+
+resource "aws_route_table_association" "public_rt" {
+  for_each       = aws_subnet.public_subnets
+  route_table_id = aws_route_table.public_rt.id
+  subnet_id      = each.value.id
+}
+resource "aws_route_table_association" "private_rt" {
+  for_each       = aws_subnet.private_subnets
+  route_table_id = aws_route_table.private_rt.id
+  subnet_id      = each.value.id
 }
