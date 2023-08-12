@@ -2,6 +2,18 @@
 
 A collection of IoCs for commonly used constructions.
 
+## Terraform
+
+### Utils command
+
+```
+terraform init
+terraform plan
+terraform fmt
+terraform apply -auto-approve
+terraform destroy -auto-approve
+```
+
 ## Reference
 
 ### Terraform
