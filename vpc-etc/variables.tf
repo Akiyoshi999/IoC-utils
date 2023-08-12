@@ -18,6 +18,12 @@ variable "AZ" {
   type = string
 }
 
+variable "ami" {
+  type    = string
+  default = "ami-0e25eba2025eea319"
+}
+
+# Network
 locals {
   subnets = {
     public = {
@@ -43,6 +49,53 @@ locals {
         az     = "ap-northeast-1c"
         public = false
       },
+    }
+  }
+}
+
+# SG
+locals {
+  app-sg = {
+    "ssh" = {
+      type        = "ingress"
+      protocol    = "tcp"
+      port        = 22
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    "all-egress" = {
+      type        = "egress"
+      protocol    = "all"
+      port        = 0
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    # "http" = {
+    #   type        = "egress"
+    #   protocol    = "tcp"
+    #   port        = 80
+    #   cidr_blocks = ["0.0.0.0/0"]
+    # }
+    # "https" = {
+    #   type        = "egress"
+    #   protocol    = "tcp"
+    #   port        = 443
+    #   cidr_blocks = ["0.0.0.0/0"]
+    # }
+  }
+}
+
+# ec2
+locals {
+  ec2 = {
+
+    docker = {
+      user_data = <<EOF
+    #!/bin/bash -x
+    yum update -y
+    amazon-linux-extras install -y docker
+    systemctl start docker
+    systemctl enable docker
+    usermod -a -G docker ec2-user
+    EOF
     }
   }
 }
