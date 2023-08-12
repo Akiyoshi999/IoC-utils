@@ -1,0 +1,5 @@
+project     = "template"
+environment = "dev"
+public      = "public"
+private     = "private"
+AZ          = "ap-northeast-1"
